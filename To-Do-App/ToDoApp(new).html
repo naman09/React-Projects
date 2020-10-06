@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+    <head>
+        
+        <style>
+             body{
+                background-color:aquamarine;
+                //margin-left:500px;
+                //margin-top: 150px;
+                //margin-right: 500px;
+            }
+            .todoListMain .header input {
+                padding: 10px;
+                font-size: 16px;
+                border: 2px solid #FFF;
+                width: 165px;
+             }
+
+            .todoListMain .header button{
+                padding: 10px;
+                font-size: 16px;
+                margin: 10px;
+                margin-right: 0px;
+                background-color: #0066FF;
+                color: #FFF;
+                border: 2px solid #0066FF;
+            }
+
+            .todoListMain .header button:hover{
+                background-color: #003399;
+                border: 2px solid #003399;
+                cursor: pointer;
+            }
+
+            .todoListMain .theList li{
+                color: #333;
+                background-color: rgba(255,255,255,.5);
+                padding: 15px;
+                margin-bottom: 15px;
+                border-radius: 5px;
+                list-style: none;
+
+                transition: background-color .2s ease-out;
+            }
+
+            .todoListMain .theList  li:hover{
+                background-color: pink;
+                cursor: pointer;
+            }
+
+            ul.theList{
+                padding :0px;   
+                width: 250px;
+            }
+            #container{
+                margin-left:500px;
+                margin-top: 100px;
+            }
+
+        </style>
+        <link ref="stylesheet" href="index.css" >
+        <title>To do App</title>
+    </head>
+    <body>
+        <div id="container"></div>
+    </body>
+</html>
+<script src="react.js"></script>
+<script src="react-dom.js"></script>
+<script src="babel.js"></script>
+<script src="react-flip-move.js"></script>
+<script type="text/babel">
+
+
+    class ToDoItems extends React.Component{
+        constructor(props){
+            super(props);
+            this.createTasks=this.createTasks.bind(this);
+        }
+        createTasks(item){
+            return <li onClick={()=> this.delete(item.key)}
+                    key={item.key}>{item.text}</li>
+        }
+
+        delete(key){
+            this.props.delete(key);
+        }
+
+        render(){
+            var todoEntries= this.props.entries;
+            var listItems=todoEntries.map(this.createTasks);
+            return(
+                <ul className="theList">  
+                    <FlipMove duration={250} easing="ease-out"> 
+                        {listItems}
+                    </FlipMove>
+                </ul>
+            );
+        }
+    }
+
+
+
+    class TodoList extends React.Component{
+        constructor(props){
+            super(props);
+
+            this.state={
+                items:[]
+            };
+
+            this.addItem=this.addItem.bind(this);
+            this.deleteItem=this.deleteItem.bind(this);
+        }
+
+        addItem(e){
+            if(this._inputElement!=""){
+                var newItem={
+                    text: this._inputElement.value,
+                    key:Date.now()
+                };
+                this.setState((prevState)=>{
+                        return {items:prevState.items.concat(newItem)};
+                });
+
+                this._inputElement.value="";
+                console.log(this.state.items);  
+                e.preventDefault();
+            }
+        }
+
+        //called from todoItems
+        deleteItem(key){
+            var filteredItems=this.state.items.filter((item)=>{
+                return (item.key!=key);
+            });
+            this.setState({
+                items:filteredItems
+            });
+        }
+
+        render(){
+            //console.log("Hello");
+            //return(<div>hello</div>) ; 
+            return (
+                <div className="todoListMain">
+                    <div className="header">
+                        <form onSubmit={this.addItem}>
+                            <input ref={(a)=>this._inputElement=a}
+                                placeholder="enter value"></input>
+                            <button type="submit">add</button>
+                        </form>
+                    </div>    
+                    <ToDoItems entries={this.state.items}
+                                delete={this.deleteItem}/>
+                </div>
+            );
+        }
+    }
+
+
+
+
+    ReactDOM.render(
+        <TodoList/>,
+        document .getElementById("container")
+    );
+
+</script>
